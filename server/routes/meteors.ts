@@ -2,8 +2,9 @@ var express = require('express');
 const { Meteors } = require('../db/collections/meteors');
 var router = express.Router();
 
-/* GET home page. */
-router.get('/', function(req, res, next) {
+/* GET users listing. */
+// TODO: add pagination.
+router.get('/meteors', function(req, res, next) {
   res.send(Meteors);
 });
 
