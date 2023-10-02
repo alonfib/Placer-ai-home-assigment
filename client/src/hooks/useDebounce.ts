@@ -1,18 +1,29 @@
 import React from 'react';
 
 export function useDebouncedCallback(callback: (...args: any[]) => void, delay?: number): (...args: any[]) => void {
+  const timeoutRef = React.useRef<NodeJS.Timeout | undefined>();
+
   const debouncedCallback = React.useCallback(
     (...args: any[]) => {
-      const timer = setTimeout(() => {
-        callback(...args);
-      }, delay || 500);
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
 
-      return () => {
-        clearTimeout(timer);
-      };
+      timeoutRef.current = setTimeout(() => {
+        callback(...args);
+        timeoutRef.current = undefined;
+      }, delay || 500);
     },
     [callback, delay]
   );
+
+  React.useEffect(() => {
+    return () => {
+      if (timeoutRef.current) {
+        clearTimeout(timeoutRef.current);
+      }
+    };
+  }, []);
 
   return debouncedCallback;
 }
