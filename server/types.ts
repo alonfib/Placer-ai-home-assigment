@@ -11,6 +11,8 @@ export interface MeteorsRequestParams {
 
 export interface MeteorsResponse {
   meteors: IMeteor[];
+  totalMeteors: number;
   currentPage: number;
   totalPages: number;
+  currentYear: number;
 }
