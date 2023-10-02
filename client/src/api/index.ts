@@ -1,7 +1,8 @@
 import axios from "axios";
 
-const port = 5005;
-const baseUrl = `http://localhost:${port}/`;
+const port = process.env?.SERVER_PORT || 5001;
+//TODO: add port && path env variable
+const baseUrl = `http://localhost:${5001}/`;
 
 export const get = async (url: string, params: any = {}) => {
   try {
