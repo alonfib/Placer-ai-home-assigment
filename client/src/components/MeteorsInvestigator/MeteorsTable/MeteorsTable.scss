@@ -1,0 +1,29 @@
+.meteors-table {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  height: 100%;
+  overflow-y: hidden;
+
+  .table-headers {
+    padding-top: 16px;
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    border-bottom: 1px solid #000000;
+    box-shadow: 1px 0px 5px #00000075;;
+  }
+
+  .meteors-table-data-container {
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    gap: 8px;
+    height: 100%;
+  }
+
+  .row {
+    display: grid;
+    grid-template-columns: 1fr 1fr 1fr 1fr;
+    margin-top: 16px;
+  }
+}

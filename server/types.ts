@@ -5,8 +5,8 @@ export type IMeteor = typeof Meteors[number];
 export interface MeteorsRequestParams {
   page?: number;
   perPage?: number;
-  year?: number;
-  mass?: number;
+  year?: string;
+  mass?: string;
 }
 
 export interface MeteorsResponse {
@@ -14,5 +14,5 @@ export interface MeteorsResponse {
   totalMeteors: number;
   currentPage: number;
   totalPages: number;
-  currentYear: number;  
+  currentYear: string;  
 }

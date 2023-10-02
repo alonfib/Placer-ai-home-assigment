@@ -2,7 +2,7 @@ var express = require("express");
 var { Meteors } = require("../db/collections/meteors");
 
 const DEFAULT_PAGE = 1;
-const DEFAULT_PER_PAGE = 10;
+const DEFAULT_PER_PAGE = 30;
 
 var router = express.Router();
 
@@ -12,7 +12,7 @@ router.get("/", async (req, res) => {
 
   const page = parseInt(meteorRequest.page);
   const perPage = parseInt(meteorRequest?.perPage) || DEFAULT_PER_PAGE;
-  const startIndex = (page - 1) * perPage;
+  const startIndex = 0;
   const endIndex = page * perPage;
 
   let meteorData = Meteors;
@@ -27,16 +27,17 @@ router.get("/", async (req, res) => {
     const mass = parseInt(meteorRequest.mass);
     meteorData = await meteorData.filter((meteor) => parseInt(meteor.mass) > mass);
 
-    if (meteorData.length === 0 && currentYear) {
+    if (!meteorData.length && currentYear ) {
       const meteors = Meteors.filter((meteor) => parseInt(meteor.mass) > mass);
-      const newYear = meteors[0].year;
-      meteorData = meteors.filter((meteor) => meteor.year === newYear);
-      currentYear = newYear;
+      if(meteors.length) {
+        const newYear = meteors[0].year;
+        meteorData = meteors.filter((meteor) => meteor.year === newYear);
+        currentYear = new Date(newYear).getFullYear();
+      }
     }
   }
 
   const totalMeteorCount = meteorData.length;
-
   const meteorsSubset = meteorData.slice(startIndex, endIndex);
 
   const response = {
