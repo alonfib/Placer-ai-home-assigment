@@ -2,7 +2,7 @@ import { Meteors } from "./db/collections/meteors";
 
 export type IMeteor = typeof Meteors[number];
 
-export interface MeteorsRequest {
+export interface MeteorsRequestParams {
   page?: number;
   perPage?: number;
   year?: number;

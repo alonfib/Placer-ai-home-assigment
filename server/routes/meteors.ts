@@ -1,21 +1,31 @@
-const express = require('express');
-const { Meteors } = require('../db/collections/meteors');
-const { IMeteor, MeteorsResponse } = require('../types');
+var express = require('express');
+var { Meteors } = require('../db/collections/meteors');
 
 const DEFAULT_PAGE = 1;
 const DEFAULT_PER_PAGE = 10;
 
-const router = express.Router();
+var router = express.Router();
 
 /* GET meteors listing with pagination. */
-router.get('/meteors', (req, res) => {
-  const page = parseInt(req.query.page) || DEFAULT_PAGE;
-  const perPage = parseInt(req.query.perPage) || DEFAULT_PER_PAGE;
+router.get('/', (req, res) => {
+  const meteorRequest = req.query;
+  // console.log("req: ", req);
+
+  const page = parseInt(meteorRequest.page);
+  const perPage = parseInt(meteorRequest?.perPage) || DEFAULT_PER_PAGE;
 
   const startIndex = (page - 1) * perPage;
   const endIndex = page * perPage;
 
-  const meteorsSubset = Meteors.slice(startIndex, endIndex);
+  let meteorData = Meteors;
+
+  if(meteorRequest?.year) {
+    const formattedDate = new Date(meteorRequest.year, 0, 0, 0, 0, 0, 0);
+    console.log("formattedDate", formattedDate)
+    meteorData = meteorRequest?.year ? Meteors.filter((meteor) => meteor.year === formattedDate): Meteors;
+  }
+
+  const meteorsSubset = meteorData.slice(startIndex, endIndex);
 
   const response = {
     meteors: meteorsSubset,
