@@ -14,5 +14,5 @@ export interface MeteorsResponse {
   totalMeteors: number;
   currentPage: number;
   totalPages: number;
-  currentYear: number;
+  currentYear: number;  
 }
