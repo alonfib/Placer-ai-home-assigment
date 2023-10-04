@@ -52,9 +52,9 @@ export default MeteorsTable;
 
 const TableHeaders = () => (
   <div className="table-headers">
-    <div className="header">name</div>
-    <div className="header">recClass</div>
-    <div className="header">mass</div>
-    <div className="header">year</div>
+    <div className="header">Meteor Name</div>
+    <div className="header">Meteor Class</div>
+    <div className="header">Meteor Mass</div>
+    <div className="header">Meteor Year</div>
   </div>
 );

@@ -11,6 +11,8 @@
     font-weight: bold;
     padding: 16px 0;
     position: relative;
+    background: #587fff;
+    border-bottom: 1px solid black;
 
     .total-meteors {
       position: absolute;
@@ -25,6 +27,7 @@
     display: flex;
     align-items: center;
     justify-content: space-evenly;
+    padding: 16px;
   }
 
   .loader {

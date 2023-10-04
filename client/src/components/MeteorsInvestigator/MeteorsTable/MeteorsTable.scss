@@ -1,16 +1,19 @@
 .meteors-table {
   display: flex;
   flex-direction: column;
-  gap: 8px;
   height: 100%;
   overflow-y: hidden;
+  background-color: #d9d6d6;
 
   .table-headers {
-    padding-top: 16px;
+    padding-top: 8px;
+    padding-bottom: 8px;
     display: grid;
     grid-template-columns: 1fr 1fr 1fr 1fr;
     border-bottom: 1px solid #000000;
     box-shadow: 1px 0px 5px #00000075;;
+    font-size: 20px;
+    font-weight: bold;
   }
 
   .meteors-table-data-container {
