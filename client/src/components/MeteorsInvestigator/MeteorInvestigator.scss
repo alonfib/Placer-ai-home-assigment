@@ -1,10 +1,12 @@
 .meteor-investigator {
+  overflow: hidden;
   height: 100vh;
   width: 100vw;
   text-align: center;
   display: flex;
   flex-direction: column;
   font-family: sans-serif;
+  background-color: #d9d6d6;
 
   .title {
     font-size: 24px;
@@ -28,6 +30,7 @@
     align-items: center;
     justify-content: space-evenly;
     padding: 16px;
+    background-color: #dde4ff;
   }
 
   .loader {
