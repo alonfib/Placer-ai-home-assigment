@@ -1,8 +1,9 @@
+import { MeteorsResponse } from "../types";
+
 var express = require("express");
 var { Meteors } = require("../db/collections/meteors");
 
-const DEFAULT_PAGE = 1;
-const DEFAULT_PER_PAGE = 30;
+const ITEMS_PER_FETCH = 30;
 
 var router = express.Router();
 
@@ -11,23 +12,23 @@ router.get("/", async (req, res) => {
   const meteorRequest = req.query;
 
   const page = parseInt(meteorRequest.page);
-  const perPage = parseInt(meteorRequest?.perPage) || DEFAULT_PER_PAGE;
   const startIndex = 0;
-  const endIndex = page * perPage;
+  const endIndex = page * ITEMS_PER_FETCH;
 
   let meteorData = Meteors;
   let currentYear = meteorRequest?.year;
 
   if (currentYear) {
     const reqYear = parseInt(currentYear);
-    meteorData = await meteorData.filter((meteor) => new Date(meteor.year).getFullYear() === reqYear);
+    meteorData = meteorData.filter((meteor) => new Date(meteor.year).getFullYear() === reqYear);
   }
 
   if (meteorRequest?.mass) {
     const mass = parseInt(meteorRequest.mass);
-    meteorData = await meteorData.filter((meteor) => parseInt(meteor.mass) > mass);
+    meteorData = meteorData.filter((meteor) => parseInt(meteor.mass) > mass);
 
-    if (!meteorData.length && currentYear ) {
+    // If we check for mass and there are no results for the year, we should check for the next year with results.
+    if (!meteorData.length && currentYear) {
       const meteors = Meteors.filter((meteor) => parseInt(meteor.mass) > mass);
       if(meteors.length) {
         const newYear = meteors[0].year;
@@ -40,11 +41,9 @@ router.get("/", async (req, res) => {
   const totalMeteorCount = meteorData.length;
   const meteorsSubset = meteorData.slice(startIndex, endIndex);
 
-  const response = {
-    currentPage: page,
-    totalPages: Math.ceil(Meteors.length / perPage) || 1,
-    totalMeteors: totalMeteorCount,
+  const response: MeteorsResponse = {
     meteors: meteorsSubset,
+    totalMeteors: totalMeteorCount,
     currentYear: currentYear,
   };
 

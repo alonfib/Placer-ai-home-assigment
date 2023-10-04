@@ -1,4 +1,4 @@
-import React, { useEffect, useRef, useState } from "react";
+import React, { useCallback, useEffect, useRef, useState } from "react";
 import "./MeteorInvestigator.scss";
 import { IMeteor, MeteorsRequestParams, MeteorsResponse } from "../../../../server/types";
 import { useDebouncedCallback } from "../../hooks/useDebounce";
@@ -7,27 +7,37 @@ import { get } from "../../api";
 import MeteorsTable from "./MeteorsTable/MeteorsTable";
 import useInfiniteScroll from "../../hooks/useInfiniteScroll";
 import { MagnifyingGlass } from "react-loader-spinner";
+import { fetchAutoComplete } from "../../utils";
 
 function MeteorsInvestigator() {
   const [meteorsData, setMeteorsData] = useState<IMeteor[]>([]);
-  const [currentPage, setCurrentPage] = useState<number>(1);
+  // const [currentPage, setCurrentPage] = useState<number>(1);
   const [searchYear, setSearchYear] = useState<string>("");
   const [searchMass, setSearchMass] = useState<string>("");
   const [autoCompleteSuggestions, setAutoCompleteSuggestions] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-  
+
   const [userMessage, setUserMessage] = useState<string>("");
   const [meteorsCount, setMeteorsCount] = useState<number>(1);
   const tableRef = useRef<HTMLDivElement | null>(null);
-  
-  const resetScrollFlag = useInfiniteScroll(tableRef, () => onInfiniteScroll());
 
   useEffect(() => {
     fetchData({ page: 1 });
   }, []);
 
+  const onInfiniteScroll = (page = currentPage) => {
+    fetchData({ page: page + 1 });
+  };
+
+  // debounced for better looking ui
+  const delayedInfiniteScroll = useDebouncedCallback((page) => {
+    if (!!meteorsData.length) {
+      onInfiniteScroll(page);
+    }
+  }, 300);
+
+  // debounced for better looking ui and showing loader beside of performance
   const delayedFetchData = useDebouncedCallback((params: MeteorsRequestParams) => {
-    console.log("fetching data");
     fetchData(params);
   }, 800);
 
@@ -38,26 +48,29 @@ function MeteorsInvestigator() {
     }, 5000);
   };
 
-  const fetchAutoComplete = async (search: string) => {
-    const suggestions = await get("autocomplete", { search });
-    setAutoCompleteSuggestions(suggestions);
-  };
+  const { resetBottomScrollFlag, currentPage, resetPageCount } = useInfiniteScroll(tableRef, 1, () => {
+      delayedInfiniteScroll(currentPage);
+  });
 
-  const fetchData = async ({ page = currentPage, year = searchYear, mass = searchMass, perPage }: MeteorsRequestParams) => {
+  const fetchData = async ({ 
+    page = currentPage, 
+    year = searchYear, 
+    mass = searchMass 
+  }: MeteorsRequestParams) => {
     setIsLoading(true);
+
     const currentParams: MeteorsRequestParams = {
-      page: page,
-      year: year,
-      mass: mass || undefined,
+      page,
+      year,
+      mass,
     };
 
     const data: MeteorsResponse = await get("meteors", currentParams);
 
-    console.log("year", year);
-    console.log("data.currentYear", data.currentYear);
-
     if (data?.currentYear && data.currentYear != year && !!mass) {
-      handleUserMessage(`The is no data of meteors with mass above ${mass} for year ${year}  - Showing data for ${data.currentYear}`);
+      handleUserMessage(
+        `The is no data of meteors with mass above ${mass} for year ${year}  - Showing data for ${data.currentYear}`
+      );
       setSearchYear(data.currentYear);
       await setTimeout(() => null, 2000);
     }
@@ -65,34 +78,25 @@ function MeteorsInvestigator() {
     setMeteorsData(data?.meteors ?? []);
     setMeteorsCount(data?.totalMeteors ?? 0);
 
+    // bottom scroll flag made to prevent infinite scroll from firing lots of requests
+    resetBottomScrollFlag();
     setTimeout(() => {
       setIsLoading(false);
     }, 1000);
-
-    return data;
   };
 
   const onYearSearch = async (year: string) => {
-    if (isNaN(parseInt(year)) && year !== "") return;
-
     setSearchYear(year);
-    fetchAutoComplete(year);
-    setCurrentPage(1);
-
+    const suggestions = await fetchAutoComplete(year);
+    setAutoCompleteSuggestions(suggestions);
+    resetPageCount();
     delayedFetchData({ year, page: 1 });
   };
 
   const onMassSearch = async (mass: string) => {
     setSearchMass(mass);
-    setCurrentPage(1);
+    resetPageCount();
     delayedFetchData({ mass, page: 1 });
-  };
-
-  const onInfiniteScroll = () => {
-    setCurrentPage(currentPage + 1);
-    fetchData({ page: currentPage + 1 }).finally(() => {
-      resetScrollFlag();
-    });
   };
 
   return (

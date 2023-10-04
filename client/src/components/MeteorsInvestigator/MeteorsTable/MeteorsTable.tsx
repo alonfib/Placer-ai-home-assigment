@@ -20,7 +20,6 @@ const MeteorsTable = ({ data, tableRef, isLoading }: IMeteorsTable) => {
             height="100"
             width="100"
             ariaLabel="MagnifyingGlass-loading"
-            wrapperStyle={{}}
             wrapperClass="MagnifyingGlass-wrapper"
             glassColor="#c0efff"
             color="#28bbf1"

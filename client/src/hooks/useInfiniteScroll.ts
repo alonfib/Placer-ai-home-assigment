@@ -1,38 +1,44 @@
-import { useEffect, useState } from 'react';
+import { useCallback, useEffect, useState } from "react";
 
-function useInfiniteScroll(targetRef: React.RefObject<HTMLElement>, callback: () => void) {
+function useInfiniteScroll(targetRef: React.RefObject<HTMLElement>, initialPage: number, callback: () => void) {
   const [hasScrolledToBottom, setHasScrolledToBottom] = useState(false);
+  const [currentPage, setCurrentPage] = useState(initialPage);
+  
+  const handleScroll = useCallback(() => {
+    if (!hasScrolledToBottom && targetRef.current) {
+      const target = targetRef.current;
+      const isAtBottom = target.scrollTop + target.clientHeight >= target.scrollHeight - 100;
+      
+      if (isAtBottom && target.clientHeight < target.scrollHeight) {
+        setHasScrolledToBottom(true);
+        setCurrentPage(currentPage + 1);
+        callback();
+      }
+    }
+    
+  },[hasScrolledToBottom, targetRef, callback, currentPage]);
 
   useEffect(() => {
-    const handleScroll = () => {
-      if (!hasScrolledToBottom && targetRef.current) {
-        const target = targetRef.current;
-        const isAtBottom =
-          target.scrollTop + target.clientHeight >= target.scrollHeight - 100;
-        if (isAtBottom) {
-          setHasScrolledToBottom(true);
-          callback();
-        }
-      }
-    };
-
     if (targetRef.current) {
-      targetRef.current.addEventListener('scroll', handleScroll);
+      targetRef.current.addEventListener("scroll", () => handleScroll());
     }
 
     return () => {
       if (targetRef.current) {
-        targetRef.current.removeEventListener('scroll', handleScroll);
+        targetRef.current.removeEventListener("scroll", () => handleScroll());
       }
     };
-  }, [targetRef, callback, hasScrolledToBottom]);
+  }, [targetRef, callback, hasScrolledToBottom, currentPage]);
 
-  // Return a function to reset the flag
-  const resetScrollFlag = () => {
+  const resetBottomScrollFlag = () => {
     setHasScrolledToBottom(false);
   };
 
-  return resetScrollFlag;
+  const resetPageCount = () => {
+    setCurrentPage(1);
+  };
+
+  return { resetBottomScrollFlag, currentPage, resetPageCount };
 }
 
 export default useInfiniteScroll;
