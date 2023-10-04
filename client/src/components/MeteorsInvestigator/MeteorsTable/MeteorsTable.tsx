@@ -1,4 +1,4 @@
-import React, { useEffect, useRef } from "react";
+import React from "react";
 import { IMeteor } from "../../../../../server/types";
 import "./MeteorsTable.scss";
 import { MagnifyingGlass } from "react-loader-spinner";
@@ -48,6 +48,7 @@ const MeteorsTable = ({ data, tableRef, isLoading }: IMeteorsTable) => {
 };
 
 export default MeteorsTable;
+
 
 const TableHeaders = () => (
   <div className="table-headers">

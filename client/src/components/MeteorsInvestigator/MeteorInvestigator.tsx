@@ -1,4 +1,4 @@
-import React, { useCallback, useEffect, useRef, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import "./MeteorInvestigator.scss";
 import { IMeteor, MeteorsRequestParams, MeteorsResponse } from "../../../../server/types";
 import { useDebouncedCallback } from "../../hooks/useDebounce";
@@ -6,40 +6,32 @@ import CommonInput from "../Common/Input/Input";
 import { get } from "../../api";
 import MeteorsTable from "./MeteorsTable/MeteorsTable";
 import useInfiniteScroll from "../../hooks/useInfiniteScroll";
-import { MagnifyingGlass } from "react-loader-spinner";
 import { fetchAutoComplete } from "../../utils";
 
 function MeteorsInvestigator() {
   const [meteorsData, setMeteorsData] = useState<IMeteor[]>([]);
-  // const [currentPage, setCurrentPage] = useState<number>(1);
   const [searchYear, setSearchYear] = useState<string>("");
   const [searchMass, setSearchMass] = useState<string>("");
   const [autoCompleteSuggestions, setAutoCompleteSuggestions] = useState<string[]>([]);
   const [isLoading, setIsLoading] = useState<boolean>(false);
-
   const [userMessage, setUserMessage] = useState<string>("");
   const [meteorsCount, setMeteorsCount] = useState<number>(1);
+
   const tableRef = useRef<HTMLDivElement | null>(null);
+
+  const { resetBottomScrollFlag, currentPage, resetPageCount } = useInfiniteScroll(tableRef, 1, () => {
+    if (!!meteorsData.length) {
+      delayedFetchData({ page: currentPage + 1 });
+    }
+  });
 
   useEffect(() => {
     fetchData({ page: 1 });
   }, []);
 
-  const onInfiniteScroll = (page = currentPage) => {
-    fetchData({ page: page + 1 });
-  };
-
-  // debounced for better looking ui
-  const delayedInfiniteScroll = useDebouncedCallback((page) => {
-    if (!!meteorsData.length) {
-      onInfiniteScroll(page);
-    }
-  }, 300);
-
-  // debounced for better looking ui and showing loader beside of performance
   const delayedFetchData = useDebouncedCallback((params: MeteorsRequestParams) => {
     fetchData(params);
-  }, 800);
+  }, 300);
 
   const handleUserMessage = (message: string) => {
     setUserMessage(message);
@@ -48,28 +40,21 @@ function MeteorsInvestigator() {
     }, 5000);
   };
 
-  const { resetBottomScrollFlag, currentPage, resetPageCount } = useInfiniteScroll(tableRef, 1, () => {
-      delayedInfiniteScroll(currentPage);
-  });
-
-  const fetchData = async ({ 
-    page = currentPage, 
-    year = searchYear, 
-    mass = searchMass 
-  }: MeteorsRequestParams) => {
+  const fetchData = async ({ page = currentPage, year = searchYear, mass = searchMass }: MeteorsRequestParams) => {
+    if (meteorsCount <= meteorsData.length) return;
     setIsLoading(true);
 
-    const currentParams: MeteorsRequestParams = {
-      page,
-      year,
-      mass,
-    };
-
+    const currentParams: MeteorsRequestParams = { page, year, mass };
     const data: MeteorsResponse = await get("meteors", currentParams);
 
-    if (data?.currentYear && data.currentYear != year && !!mass) {
+    if (!data) {
+      handleUserMessage(`Could not load meteors data. Please try to search again or reload page`);
+      return;
+    }
+
+    if (data?.currentYear && data.currentYear !== year && !!mass) {
       handleUserMessage(
-        `The is no data of meteors with mass above ${mass} for year ${year}  - Showing data for ${data.currentYear}`
+        `There is no data of meteors with mass above ${mass} for year ${year} - Showing data for ${data.currentYear}`
       );
       setSearchYear(data.currentYear);
       await setTimeout(() => null, 2000);
@@ -78,17 +63,17 @@ function MeteorsInvestigator() {
     setMeteorsData(data?.meteors ?? []);
     setMeteorsCount(data?.totalMeteors ?? 0);
 
-    // bottom scroll flag made to prevent infinite scroll from firing lots of requests
     resetBottomScrollFlag();
     setTimeout(() => {
+      // Just making it looks like it loading :)
       setIsLoading(false);
     }, 1000);
   };
 
   const onYearSearch = async (year: string) => {
-    setSearchYear(year);
     const suggestions = await fetchAutoComplete(year);
     setAutoCompleteSuggestions(suggestions);
+    setSearchYear(year);
     resetPageCount();
     delayedFetchData({ year, page: 1 });
   };
@@ -118,7 +103,7 @@ function MeteorsInvestigator() {
           type="number"
           title="Mass bigger than "
           placeholder="Mass"
-          value={searchMass?.toString() || ""}
+          value={searchMass}
           onChange={(val) => onMassSearch(val)}
         />
       </div>

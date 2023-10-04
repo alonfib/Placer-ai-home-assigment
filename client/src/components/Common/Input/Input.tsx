@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React from 'react';
 import { AutoComplete, Input, InputProps } from 'antd';
 import { Modify } from '../../../utils';
 import './Input.scss';
@@ -25,6 +25,8 @@ const CommonInput: React.FC<CommonInputProps> = ({
   ...restProps
 }) => {
   const handleInputChange = (inputValue: string) => {
+    // ** I Implemented like this for "input free text" task 
+    // -- I Could just put type number in input props
     if (type === 'number' && !numericRegex.test(inputValue) && inputValue !== '') return;
     onChange(inputValue); 
   };
@@ -34,9 +36,9 @@ const CommonInput: React.FC<CommonInputProps> = ({
       {title && <div className="input-title">{title}</div>}
       <AutoComplete
         options={suggestions.map((suggestion) => ({ value: suggestion }))}
-        onSelect={(selectedValue) => handleInputChange(selectedValue)} // Use local handler
-        onChange={(inputValue) => handleInputChange(inputValue)} // Use local handler
-        value={value} // Use local state
+        onSelect={(selectedValue) => handleInputChange(selectedValue)} //
+        onChange={(inputValue) => handleInputChange(inputValue)} 
+        value={value} 
       >
         <Input
           placeholder={placeholder}

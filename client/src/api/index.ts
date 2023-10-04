@@ -1,8 +1,7 @@
 import axios from "axios";
 
-const port = process.env?.SERVER_PORT || 5001;
-//TODO: add port && path env variable
-const baseUrl = `http://localhost:${5001}/`;
+const port = 5000;
+const baseUrl = `http://localhost:${port}/`;
 
 export const get = async (url: string, params: any = {}) => {
   try {
@@ -39,5 +38,3 @@ export const del = async (url: string, params: any = {}) => {
     console.log(err);
   }
 };
-
-// Path: client/src/api/user.ts
