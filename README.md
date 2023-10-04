@@ -11,7 +11,7 @@ In the project directory, you can run:
 ### `npm start`
 
 Runs the app in the development mode.
-Opens Client - [http://localhost:3000] & Server listening to port [5000]
+Opens Client - [http://localhost:3000] & Server listening to port [5005]
 
 ### `npm run install:app`
 

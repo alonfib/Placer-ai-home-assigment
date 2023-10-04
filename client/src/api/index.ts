@@ -1,6 +1,6 @@
 import axios from "axios";
 
-const port = 5000;
+const port = 5005;
 const baseUrl = `http://localhost:${port}/`;
 
 export const get = async (url: string, params: any = {}) => {

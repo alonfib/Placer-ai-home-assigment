@@ -9,7 +9,7 @@ var indexRouter = require("./routes/index");
 var meteorsRouter = require("./routes/meteors");
 
 var app = express();
-var serverPort = process.env.PORT || 5000;
+var serverPort = process.env.PORT || 5005;
 
 app.set("port", serverPort);
 app.use(logger("dev"));
